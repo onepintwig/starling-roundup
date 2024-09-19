@@ -31,7 +31,7 @@ handled.
 Once these have been made, you can execute the roundup for the account and savings-goal.
 
 ``` sh
-curl -X 'PUT' \
+curl -X 'PUT'  http://localhost:8080/starling/round-up/account/{accountUid}/savings-goal/{savingsGoalUid} \
     -H 'Authorization: Bearer your-token' \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \

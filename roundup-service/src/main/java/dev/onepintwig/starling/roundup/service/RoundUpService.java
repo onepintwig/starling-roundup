@@ -61,7 +61,7 @@ public final class RoundUpService {
      * @return The FeedItems for the account
      */
     private static Mono<List<FeedItem>> getFeedItems(String token, UUID accountUid, Date roundUpWeekStartTimestamp) {
-        //Get all the feed items for all accounts
+        //Get all customers accounts
         return ReactiveStarlingClient.get(token, "/accounts", AccountList.class)
                 .map(accountList -> accountList.accounts().stream().filter(account -> account.accountUid().equals(accountUid)).findFirst())
                 .flatMap(maybeAccount ->
@@ -71,7 +71,7 @@ public final class RoundUpService {
                         return Mono.error(new IllegalArgumentException("Account: " + accountUid + " not found"));
                     } else {
                         Account account = maybeAccount.get();
-                        //Get transactions for the week after the specified week start
+                        //For the spdcified account, get transactions for the week after the specified week start
                         Instant start = roundUpWeekStartTimestamp.toInstant();
                         Instant end = start.plus(7, ChronoUnit.DAYS);
                         String query = "/feed/account/" + account.accountUid().toString() + "/settled-transactions-between" + "?minTransactionTimestamp=" + start + "&maxTransactionTimestamp=" + end;

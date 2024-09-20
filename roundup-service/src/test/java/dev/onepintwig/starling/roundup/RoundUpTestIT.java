@@ -1,4 +1,7 @@
 //TODO: Implement integration test
+//Take in auth token as env variable and do account/savings-goal set up
+//
+//
 //package dev.onepintwig.starling.roundup;
 //
 //import jakarta.ws.rs.client.Client;

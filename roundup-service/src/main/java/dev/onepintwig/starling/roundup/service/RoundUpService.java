@@ -10,7 +10,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public final class RoundUpService {
 
@@ -32,7 +31,7 @@ public final class RoundUpService {
         //Get feed items
         return Flux.from(getFeedItems(token, accountUid, roundUpWeekStartTimestamp)
                         //Get the roundup for the feed items
-                        .map(RoundUpService::roundUpsForFeedItems)).flatMap(
+                        .map(RoundUpCalculator::roundUpsForFeedItems)).flatMap(
                         roundUps ->
                                 //For each calculated round up currency, execute the savings goal transfer
                                 Flux.fromIterable(roundUps).flatMap(
@@ -81,35 +80,5 @@ public final class RoundUpService {
                 });
     }
 
-    /**
-     * Gets a list of all the round up amounts for the currencies in a given [[FeedItem]] set
-     * A valid transaction for rounding-up is a settled outbound transaction
-     * <p>
-     * Could be simpler if we only rounded up a single currency... but holiday spending's should save for the next holiday too!
-     *
-     * @param feedItems The feed-item list to determine round-ups from
-     * @return The round-up total for each currency in the feed-items
-     */
-    private static List<CurrencyAmount> roundUpsForFeedItems(List<FeedItem> feedItems) {
-        //Filter down to only relevant transactions. Settled and outbound. Admitting here that my banking domain knowledge is a bit weak.
-        return feedItems.stream()
-                .filter(fi -> fi.direction() == FeedItem.TransactionDirection.OUT)
-                //Group and reduce amounts by currency
-                .collect(
-                        Collectors.groupingBy(
-                                fi -> fi.amount().currency(),
-                                Collectors.reducing(
-                                        0,
-                                        //In the interests of time, assuming 100 here for the "round-up" target.
-                                        //Would likely need an additional lookup table or service call for prod
-                                        //as some currencies have different decimalisation
-                                        fi -> 100 - (fi.amount().minorUnits() % 100),
-                                        Integer::sum
-                                )
-                        )
-                ).entrySet().stream().map(
-                        //Return in our model for easy sending to savings target
-                        group -> new CurrencyAmount(group.getKey(), group.getValue())
-                ).toList();
-    }
+
 }

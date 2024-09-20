@@ -10,7 +10,7 @@ public class RoundUpCalculator {
 
     /**
      * Gets a list of all the round up amounts for the currencies in a given [[FeedItem]] set
-     * A valid transaction for rounding-up is a settled outbound transaction
+     * A valid transaction for rounding-up is an outbound transaction
      * <p>
      * Could be simpler if we only rounded up a single currency... but holiday spending's should save for the next holiday too!
      *
@@ -19,6 +19,7 @@ public class RoundUpCalculator {
      */
     public static List<CurrencyAmount> roundUpsForFeedItems(List<FeedItem> feedItems) {
         //Filter down to only relevant transactions. Settled and outbound. Admitting here that my banking domain knowledge is a bit weak.
+        //Already filtered on server side for settled. So just need to check direction now.
         return feedItems.stream()
                 .filter(fi -> fi.direction() == FeedItem.TransactionDirection.OUT)
                 //Group and reduce amounts by currency
